@@ -1,0 +1,127 @@
+#!/usr/bin/env php
+<?php
+
+use Zend\Console\Console;
+use Zend\Console\ColorInterface as Color;
+use Zend\Console\Prompt\Line;
+use Zend\Console\Prompt\Confirm;
+use Zend\Console\Getopt;
+
+include 'vendor/autoload.php';
+
+class LocalVHost
+{
+    protected $console;
+    protected $result;
+    protected $fileName = '/etc/hosts';
+    protected $fileInfo;
+    protected $file;
+    protected $opt;
+
+    public function __construct()
+    {
+        $this->setUp();
+    }
+
+    public function setUpGetopt()
+    {
+        $this->opt = new Getopt(array(
+            'dev'      => 'Modo de desarrollo, solo usa los archivos locales.',
+            'verbose|v'  => 'Imprime en pantalla lo que se va haciendo.',
+            'ayuda|help|h'=> 'Imprime la ayuda.',
+        ));
+
+        if ($this->opt->getOption('h')) {
+            $this->printHelp();
+        }
+
+        if ($this->opt->getOption('dev')) {
+            $this->opt->addArguments(array("-v"));
+            $this->fileName = __DIR__ . '/hosts';
+            $this->log("Modo DEVELOPER");
+            $this->log("Archivo: ". $this->fileName);
+        }
+    }
+
+    public function printHelp()
+    {
+        echo $this->opt->getUsageMessage();
+        exit(0);
+    }
+
+    public function setUp()
+    {
+        $this->console = Console::getInstance();
+        $this->console->clear();
+    }
+
+    public function openFile()
+    {
+        try {
+            $this->log("Abriendo el archivo: " . $this->fileName);
+            $this->fileInfo = new \SplFileInfo($this->fileName);
+            $this->file = $this->fileInfo->openFile('a+');
+        } catch (Exception $e) {
+            $this->console->writeLine("Para ejecutar corractamente este programa es necesario"
+                                      . " tener premisos de administrador.\nsudo ./modify-hosts");
+            $this->console->writeLine($e->getMessage(), Color::RED);
+            $this->printHelp();
+            exit(2);
+        }
+    }
+
+    public function run()
+    {
+        $this->console->writeLine("Agregar un nuevo nombre de host al archivo 'hosts'", Color::CYAN);
+        $this->console->writeLine("solo funciona de forma local", Color::CYAN);
+        $this->console->writeLine("v 0.2", Color::CYAN);
+        $this->setUpGetopt();
+
+        if ($this->getOption()) {
+            $this->openFile();
+            $this->addNewVHosts();
+            $this->printResult();
+        } else {
+            $this->log('Finalizando.');
+        }
+    }
+
+    public function addNewVHosts()
+    {
+        $this->log('Pidiendo el nombre para el nuevo VHOST.');
+        $name = Line::prompt(
+            'Nombre del VHOST: ',
+            false,
+            100
+        );
+        $this->log('Escribiendo el nuevo VHOST en el archivo ' . $this->fileName);
+        $this->result = (boolean) $this->file->fwrite(sprintf("127.0.0.1\t%s\n", $name));
+    }
+
+    public function getOption()
+    {
+        $this->log('Confirmar si se desea continuar.');
+        $result = Confirm::prompt('¿Desea modificar el archivo "host"?[s/n] ', 's');
+        return $result;
+    }
+
+    public function printResult()
+    {
+        $this->log('Finalizando.');
+        if ($this->result) {
+            $this->console->writeLine("Hecho!!", Color::GREEN);
+        } else {
+            $this->console->writeLine("Error, no se ha podido escribir en el archivo 'host'.", Color::RED);
+        }
+    }
+
+    public function log($msj)
+    {
+        if ($this->opt->getOption('v')) {
+            $this->console->writeLine($msj, COLOR::YELLOW);
+        }
+    }
+}
+
+$app = new LocalVHost();
+$app->run();

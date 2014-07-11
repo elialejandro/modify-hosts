@@ -1,0 +1,16 @@
+{
+    "name": "rurouni/modify-hosts",
+    "description": "Agrega un nuevo VHOST al sistema de forma local utilizando el archivo [/etc/hosts]",
+    "require": {
+        "php": ">=5.3.23",
+        "zendframework/zend-console": "dev-master"
+    },
+    "license": "BSD-3",
+    "authors": [
+        {
+            "name": "Eli Alejandro",
+            "email": "iscelialejandro@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
