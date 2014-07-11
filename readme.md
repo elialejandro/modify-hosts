@@ -11,26 +11,27 @@ También es necesario tener instalado composer o instalarlo.
 
 Pueden visitar la página de composer [getcomposer](https://getcomposer.org/doc/00-intro.md#installation-nix) o usar el siguiente comando
 
-```bash
+```
 php -r "readfile('https://getcomposer.org/installer');" | php
 ```
 Finalmente se instalan las dependencias
-```bash
-# ./composer.phar install
+```
+./composer.phar install
 ```
 
 #### Uso
 
-```bash
-# sudo ./modify-host
+```
+sudo ./modify-host
 ```
 
 Para mostrar una ayuda simple
-```bash
-# sudo ./modify-host -h
+```
+sudo ./modify-host -h
 ```
 
 ### Pendiente por hacer
+* ~~Agregar un nuevo nombre de vHost~~
 * Eliminar un nombre de vHost
 
 ### Screenshots
